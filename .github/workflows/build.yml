@@ -12,7 +12,8 @@
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build
-                  - name: Package IPA
+
+      - name: Package IPA
         run: |
           rm -rf Payload
           mkdir Payload
