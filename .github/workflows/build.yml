@@ -1,11 +1,51 @@
-- name: Build
-  run: |
-    xcodebuild \
-      -project ThreeOneOSFive.xcodeproj \
-      -configuration Release \
-      -sdk iphoneos \
-      -destination 'generic/platform=iOS' \
-      -derivedDataPath build \
-      CODE_SIGNING_ALLOWED=NO \
-      CODE_SIGNING_REQUIRED=NO \
-      build
+name: Build 3105
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode
+        run: xcodebuild -version
+
+      - name: Build target 3105
+        run: |
+          xcodebuild \
+            -project ThreeOneOSFive.xcodeproj \
+            -target 3105 \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Package IPA
+        run: |
+          rm -rf Payload
+          mkdir Payload
+
+          cp -R \
+            build/Build/Products/Release-iphoneos/3105.app \
+            Payload/3105.app
+
+          /usr/bin/zip -qry \
+            3105-2.0-ios16-unsigned.ipa \
+            Payload
+
+      - name: Check IPA
+        run: |
+          unzip -l 3105-2.0-ios16-unsigned.ipa | head -30
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3105-2.0-ios16-unsigned
+          path: 3105-2.0-ios16-unsigned.ipa
